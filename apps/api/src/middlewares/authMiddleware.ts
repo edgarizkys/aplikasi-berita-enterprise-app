@@ -1,0 +1,1 @@
+// authMiddleware.ts - Fallback template (LLM unavailable)
