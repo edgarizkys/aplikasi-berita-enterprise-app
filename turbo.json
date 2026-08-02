@@ -1,0 +1,160 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "version": "1",
+  "globalDependencies": [
+    "**/.env",
+    "**/.env.local",
+    "**/.env.*.local"
+  ],
+  "globalPassThroughEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "JWT_SECRET",
+    "JWT_REFRESH_SECRET",
+    "NEXT_PUBLIC_API_URL"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build",
+        "generate"
+      ],
+      "inputs": [
+        "src/**",
+        "tsconfig.json",
+        "next.config.js",
+        "package.json"
+      ],
+      "outputs": [
+        ".next/**",
+        "dist/**",
+        "build/**"
+      ],
+      "cache": true,
+      "outputMode": "full"
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "interactive": true
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "src/**",
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "jest.config.js",
+        "tsconfig.json"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "cache": true,
+      "outputMode": "full"
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true,
+      "interactive": true
+    },
+    "test:coverage": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "src/**",
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "jest.config.js",
+        "tsconfig.json"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "cache": true
+    },
+    "lint": {
+      "inputs": [
+        "src/**",
+        ".eslintrc.json",
+        "tsconfig.json"
+      ],
+      "cache": true,
+      "outputMode": "full"
+    },
+    "lint:fix": {
+      "cache": false,
+      "outputMode": "full"
+    },
+    "type-check": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "src/**",
+        "tsconfig.json"
+      ],
+      "cache": true,
+      "outputMode": "full"
+    },
+    "format": {
+      "inputs": [
+        "src/**",
+        ".prettierrc.json",
+        ".prettierignore"
+      ],
+      "cache": true
+    },
+    "format:check": {
+      "inputs": [
+        "src/**",
+        ".prettierrc.json",
+        ".prettierignore"
+      ],
+      "cache": true,
+      "outputMode": "full"
+    },
+    "generate": {
+      "cache": false,
+      "inputs": [
+        "prisma/schema.prisma"
+      ],
+      "outputs": [
+        "prisma/generated/**",
+        "node_modules/.prisma/**"
+      ]
+    },
+    "db:migrate": {
+      "cache": false,
+      "interactive": true
+    },
+    "db:seed": {
+      "cache": false,
+      "dependsOn": [
+        "generate"
+      ]
+    },
+    "start": {
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false,
+      "interactive": true
+    },
+    "docs": {
+      "inputs": [
+        "src/**",
+        "docs/**"
+      ],
+      "outputs": [
+        "docs/generated/**"
+      ],
+      "cache": true
+    }
+  },
+  "ui": "tui",
+  "npmClient": "pnpm"
+}
