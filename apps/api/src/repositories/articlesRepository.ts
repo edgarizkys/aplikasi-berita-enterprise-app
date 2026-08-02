@@ -1,0 +1,1 @@
+// articlesRepository.ts - Fallback template (LLM unavailable)
