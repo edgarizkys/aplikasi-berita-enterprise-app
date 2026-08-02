@@ -1,0 +1,1 @@
+// index.ts - Fallback template (LLM unavailable)
