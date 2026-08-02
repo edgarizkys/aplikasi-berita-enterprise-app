@@ -1,0 +1,1 @@
+// rbacMiddleware.ts - Fallback template (LLM unavailable)
