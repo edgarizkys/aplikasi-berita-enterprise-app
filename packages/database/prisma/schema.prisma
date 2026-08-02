@@ -1,0 +1,176 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// MULTI-TENANT & AUTH MODELS
+// ============================================================================
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  users      User[]
+  articles   Article[]
+  authors    Author[]
+  categories Category[]
+  comments   Comment[]
+
+  @@index([deletedAt])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  email     String
+  password  String
+  name      String
+  role      String   @default("viewer") // editor, contributor, moderator, admin, viewer
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  refreshTokens RefreshToken[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId, createdAt])
+  @@index([deletedAt])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  token     String   @unique
+  expiresAt DateTime
+  
+  createdAt DateTime @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+// ============================================================================
+// ARTICLE DOMAIN MODELS
+// ============================================================================
+
+model Article {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  title     String
+  slug      String
+  content   String
+  excerpt   String?
+  
+  authorId  String
+  author    Author   @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  
+  categoryId String
+  category  Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  
+  status    String   @default("draft") // draft, scheduled, published, archived
+  featured  Boolean  @default(false)
+  
+  publishedDate DateTime?
+  scheduledDate DateTime?
+  views     Int      @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  comments  Comment[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, status])
+  @@index([tenantId, categoryId])
+  @@index([tenantId, authorId])
+  @@index([tenantId, featured])
+  @@index([tenantId, publishedDate])
+  @@index([deletedAt])
+}
+
+model Author {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  name      String
+  email     String
+  department String?
+  bio       String?
+  role      String   @default("contributor") // editor, contributor, guest
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  articles  Article[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId, createdAt])
+  @@index([deletedAt])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  name      String
+  slug      String
+  description String?
+  icon      String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  articles  Article[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, createdAt])
+  @@index([deletedAt])
+}
+
+// ============================================================================
+// COMMENT DOMAIN MODELS
+// ============================================================================
+
+model Comment {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  
+  authorName String
+  content   String
+  approved  Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([tenantId, articleId])
+  @@index([tenantId, approved])
+  @@index([tenantId, createdAt])
+  @@index([deletedAt])
+}
