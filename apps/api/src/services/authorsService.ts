@@ -1,0 +1,1 @@
+// authorsService.ts - Fallback template (LLM unavailable)
