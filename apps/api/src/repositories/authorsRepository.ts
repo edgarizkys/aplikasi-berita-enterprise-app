@@ -1,0 +1,1 @@
+// authorsRepository.ts - Fallback template (LLM unavailable)
