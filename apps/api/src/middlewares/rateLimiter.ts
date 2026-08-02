@@ -1,0 +1,1 @@
+// rateLimiter.ts - Fallback template (LLM unavailable)
